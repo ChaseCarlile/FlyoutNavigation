@@ -45,7 +45,9 @@ namespace FlyoutNavigation
 
 		public Action SelectedIndexChanged { get; set; }
 		const float sidebarFlickVelocity = 1000.0f;
-		public const int menuWidth = 250;
+		//public const int menuWidth = 250;
+		public const int menuHeight = 350;
+
 		private UIView shadowView;
 		private UIButton closeButton;
 
@@ -80,7 +82,8 @@ namespace FlyoutNavigation
             navigation = new DialogViewController(navigationStyle,null);
             navigation.OnSelection += NavigationItemSelected;
             var navFrame = navigation.View.Frame;
-            navFrame.Width = menuWidth;
+            //navFrame.Width = menuWidth;
+			navFrame.Height = menuHeight;
             navigation.View.Frame = navFrame;
             this.View.AddSubview (navigation.View);
             SearchBar = new UISearchBar (new RectangleF (0, 0, navigation.TableView.Bounds.Width, 44)) {
@@ -101,7 +104,7 @@ namespace FlyoutNavigation
             closeButton.TouchUpInside += delegate {
 				HideMenu ();
             };
-            AlwaysShowLandscapeMenu = true;
+            AlwaysShowLandscapeMenu = false;
             
             this.View.AddGestureRecognizer (new OpenMenuGestureRecognizer (this, new Selector ("panned"), this));
         }
@@ -122,43 +125,79 @@ namespace FlyoutNavigation
 //			navFrame.Y += UIApplication.SharedApplication.StatusBarFrame.Height;
 //			navFrame.Height -= navFrame.Y;
 			//this.statusbar
-			navFrame.Width = menuWidth;
+			//navFrame.Width = menuWidth;
+			navFrame.Height = menuHeight;
 			if (navigation.View.Frame != navFrame)
 				navigation.View.Frame = navFrame;
 		}
 
-		float startX = 0;
+//		float startX = 0;
+//		[Export("panned")]
+//		public void DragContentView (UIPanGestureRecognizer panGesture)
+//		{
+//			if (ShouldStayOpen || mainView == null)
+//				return;
+//			var frame = mainView.Frame;
+//			var translation = panGesture.TranslationInView (View).X;
+//			//Console.WriteLine (translation);
+//			
+//			if (panGesture.State == UIGestureRecognizerState.Began) {
+//				startX = frame.X;
+//			} else if (panGesture.State == UIGestureRecognizerState.Changed) {
+//				frame.X = translation + startX;
+//				if (frame.X < 0)
+//					frame.X = 0;
+//				else if (frame.X > frame.Width)
+//					frame.X = menuWidth;
+//				SetLocation(frame);
+//			} else if (panGesture.State == UIGestureRecognizerState.Ended) {
+//				var velocity = panGesture.VelocityInView(View).X;
+//				//Console.WriteLine (velocity);
+//				var newX = translation + startX;
+//				Console.WriteLine (translation + startX);
+//				bool show = (Math.Abs(velocity) > sidebarFlickVelocity)
+//					? (velocity > 0)
+//						: startX < menuWidth ? (newX > (menuWidth / 2)) : newX > menuWidth;
+//				if(show)
+//					ShowMenu();
+//				else 
+//					HideMenu();
+//				
+//			}
+//		}
+
+		float startY = 0;
 		[Export("panned")]
 		public void DragContentView (UIPanGestureRecognizer panGesture)
 		{
 			if (ShouldStayOpen || mainView == null)
 				return;
 			var frame = mainView.Frame;
-			var translation = panGesture.TranslationInView (View).X;
+			var translation = panGesture.TranslationInView (View).Y;
 			//Console.WriteLine (translation);
-			
+
 			if (panGesture.State == UIGestureRecognizerState.Began) {
-				startX = frame.X;
+				startY = frame.Y;
 			} else if (panGesture.State == UIGestureRecognizerState.Changed) {
-				frame.X = translation + startX;
-				if (frame.X < 0)
-					frame.X = 0;
-				else if (frame.X > frame.Width)
-					frame.X = menuWidth;
+				frame.Y = translation + startY;
+				if (frame.Y < 0)
+					frame.Y = 0;
+				else if (frame.Y > frame.Height)
+					frame.Y = menuHeight;
 				SetLocation(frame);
 			} else if (panGesture.State == UIGestureRecognizerState.Ended) {
-				var velocity = panGesture.VelocityInView(View).X;
+				var velocity = panGesture.VelocityInView(View).Y;
 				//Console.WriteLine (velocity);
-				var newX = translation + startX;
-				Console.WriteLine (translation + startX);
+				var newY = translation + startY;
+				Console.WriteLine (translation + startY);
 				bool show = (Math.Abs(velocity) > sidebarFlickVelocity)
 					? (velocity > 0)
-						: startX < menuWidth ? (newX > (menuWidth / 2)) : newX > menuWidth;
+						: startY < menuHeight ? (newY > (menuHeight / 2)) : newY > menuHeight;
 				if(show)
 					ShowMenu();
 				else 
 					HideMenu();
-				
+
 			}
 		}
 
@@ -167,7 +206,8 @@ namespace FlyoutNavigation
 		public override void ViewWillAppear (bool animated)
 		{			
 			var navFrame = navigation.View.Frame;
-			navFrame.Width = menuWidth;
+			//navFrame.Width = menuWidth;
+			navFrame.Height = menuHeight;
 			navFrame.Location = PointF.Empty;
 			navigation.View.Frame = navFrame;
 			this.View.BackgroundColor = NavigationTableView.BackgroundColor;
@@ -229,7 +269,8 @@ namespace FlyoutNavigation
 			CurrentViewController = ViewControllers [SelectedIndex];
 			var frame = View.Bounds;
 			if (isOpen || ShouldStayOpen)
-				frame.X = menuWidth;
+				frame.Y = menuHeight;
+				//frame.X = menuWidth;
 			
 			setViewSize ();
 			SetLocation (frame);
@@ -248,7 +289,8 @@ namespace FlyoutNavigation
 		//bool isOpen {get{ return mainView.Frame.X == menuWidth; }}
 
 		public bool IsOpen {
-			get{ return mainView.Frame.X == menuWidth; }
+			//get{ return mainView.Frame.X == menuWidth; }
+			get{ return mainView.Frame.Y == menuHeight; }
 			set { 
 				if (value)
 					HideMenu ();
@@ -275,7 +317,8 @@ namespace FlyoutNavigation
 				//UIView.SetAnimationDuration(2);
 				setViewSize ();
 				var frame = mainView.Frame;
-				frame.X = menuWidth;
+				//frame.X = menuWidth;
+				frame.Y = menuHeight;
 				SetLocation (frame);
 				setViewSize ();
 				frame = mainView.Frame;
@@ -301,7 +344,8 @@ namespace FlyoutNavigation
 			var frame = View.Bounds;
 			//frame.Location = PointF.Empty;
 			if (ShouldStayOpen)
-				frame.Width -= menuWidth;
+				frame.Height -= menuHeight;
+				//frame.Width -= menuWidth;
 			if (mainView.Bounds == frame)
 				return;
 			mainView.Bounds = frame;
@@ -311,7 +355,8 @@ namespace FlyoutNavigation
 		{
 			
 			mainView.Layer.AnchorPoint = new PointF(.5f, .5f);
-			frame.Y = 0;
+			//frame.Y = 0;
+			frame.X = 0;
 			if (mainView.Frame.Location == frame.Location)
 				return;
 			frame.Size = mainView.Frame.Size;
@@ -337,7 +382,8 @@ namespace FlyoutNavigation
 				//UIView.SetAnimationDuration(.5);
 				UIView.SetAnimationCurve (UIViewAnimationCurve.EaseInOut);
 				var frame = this.View.Bounds;
-				frame.X = 0;
+				//frame.X = 0;
+				frame.Y = 0;
 				setViewSize ();
 				SetLocation (frame);
 				shadowView.Frame = frame;
